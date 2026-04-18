@@ -1,0 +1,7 @@
+url-shortener-service:
+  - "url-shortener-service/**"
+  - ".github/actions/setup-dependencies/action.yaml"
+
+url-shortener-web:
+  - "url-shortener-web/**"
+  - ".github/actions/setup-dependencies/action.yaml"
