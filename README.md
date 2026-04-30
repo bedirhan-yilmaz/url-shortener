@@ -189,6 +189,37 @@ kubectl port-forward -n url-shortener svc/url-shortener-web-service 5173:80
 - **Frontend** → **http://localhost:5173**
 - **API docs** → **http://localhost:8000/docs**
 
+## CI — GitHub Actions
+
+The repository ships with a GitHub Actions workflow (`.github/workflows/test.yaml`) that runs tests automatically on every push to `main` and on all pull requests.
+
+### How it works
+
+1. **Path filtering** — A `filter` job uses [dorny/paths-filter](https://github.com/dorny/paths-filter) with `.github/utils/file-filters.yaml` to detect which services have changed. Only the affected services are tested.
+2. **Matrix strategy** — A `run-tests` job runs in parallel for each changed service (`url-shortener-service`, `url-shortener-web`) using a dynamic matrix.
+3. **Composite action** — `.github/setup-dependencies/action.yaml` sets up the correct runtime (Python 3.14 or Node.js) with caching based on the service under test.
+4. **Failure gate** — A `run-tests-failure-alert` job ensures a failing or cancelled upstream job blocks merges when used as a required check.
+
+### Triggers
+
+| Trigger | Condition |
+|---------|-----------|
+| `push` | Commits to `main` that touch `url-shortener-service/**` or `url-shortener-web/**` |
+| `pull_request` | All PRs (any branch) |
+| `workflow_dispatch` | Manual runs from the Actions tab |
+
+### Running tests locally
+
+```bash
+# Backend
+cd url-shortener-service
+pytest
+
+# Frontend
+cd url-shortener-web
+npm ci && npm test
+```
+
 ## Project Structure
 
 ```
